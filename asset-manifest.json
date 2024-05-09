@@ -1,0 +1,11 @@
+{
+  "files": {
+    "main.js": "/Sikflix/static/js/main.2024fce3.js",
+    "static/media/logo.png": "/Sikflix/static/media/logo.6ff7e7401eadcca3c2eb.png",
+    "index.html": "/Sikflix/index.html",
+    "main.2024fce3.js.map": "/Sikflix/static/js/main.2024fce3.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.2024fce3.js"
+  ]
+}
