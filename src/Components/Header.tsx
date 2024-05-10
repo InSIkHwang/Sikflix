@@ -126,7 +126,7 @@ interface IForm {
 function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const homeMatch = useMatch("/");
-  const tvMatch = useMatch("tv");
+  const tvMatch = useMatch("/tv");
   const inputAnimation = useAnimation();
   const navAnimation = useAnimation();
   const toggleSearch = () => {
@@ -154,6 +154,10 @@ function Header() {
     navigate(`/search?keyword=${data.keyword}`);
   };
 
+  const reload = () => {
+    window.location.reload();
+  };
+
   return (
     <Nav variants={navVariants} animate={navAnimation} initial={"top"}>
       <Col>
@@ -166,7 +170,7 @@ function Header() {
             </Link>
           </Item>
           <Item>
-            <Link to={"tv"}>
+            <Link to={"/tv"}>
               Tv Shows {tvMatch && <Circle layoutId="circle" />}
             </Link>
           </Item>

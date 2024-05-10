@@ -13,7 +13,12 @@ import {
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { useParams, useNavigate, useMatch } from "react-router-dom";
+import {
+  useParams,
+  useNavigate,
+  useMatch,
+  useLocation,
+} from "react-router-dom";
 import Detail from "../Components/Detail";
 import Slider from "../Components/Slider";
 import PopSlider from "../Components/PopSlider";
@@ -240,6 +245,9 @@ function Home() {
 
   const bigMovieMatch = useMatch("/movies/:movieId");
 
+  const location = useLocation();
+  const urlPathname = location.pathname;
+
   const onOverlayClick = () => {
     navigate("/");
   };
@@ -316,9 +324,7 @@ function Home() {
               </>
             ) : null}
           </AnimatePresence>
-          {popularData && movieDetail && movieCredit && (
-            <PopSlider movies={popularData.results} />
-          )}
+          {popularData && <PopSlider movies={popularData.results} />}
         </>
       )}
     </Wrapper>

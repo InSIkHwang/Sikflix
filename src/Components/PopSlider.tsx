@@ -6,11 +6,14 @@ import {
   IMovieDetail,
   getMovieCredit,
   getMovieDetail,
+  getTvCredit,
+  getTvDetail,
 } from "../api";
 import { makeImagePath } from "../utils";
 import { useQuery } from "react-query";
 import { motion } from "framer-motion";
 import { IoStar } from "react-icons/io5";
+import { useLocation, useMatch } from "react-router-dom";
 
 const Wrapper = styled(motion.div)`
   width: 100%;
@@ -70,13 +73,14 @@ const MovieDetailInfo = styled.div`
   font-size: 18px;
   line-height: 28px;
   padding-bottom: 24px;
-
-  overflow: hidden;
-  white-space: normal;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 10;
-  -webkit-box-orient: vertical;
+  &.overview {
+    overflow: auto;
+    white-space: normal;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+  }
 `;
 
 const ArrowButton = styled.button`
@@ -106,17 +110,63 @@ const PopSlider: React.FC<PopSliderProps> = ({ movies }) => {
   //   return () => clearInterval(intervalId);
   // }, [movies]);
 
-  const currentMovieId = movies[currentIndex].id;
+  const currentMovieId = movies[currentIndex]?.id;
 
-  const { data: movieDetail, isLoading: detailLoading } =
-    useQuery<IMovieDetail>(["movie", currentMovieId], () =>
-      getMovieDetail(currentMovieId)
+  const location = useLocation();
+  let urlPathname = location.pathname;
+
+  const useConditionalDetailQuery = (
+    urlPathname: string,
+    currentMovieId: number
+  ) => {
+    const { data, isLoading, refetch } = useQuery(
+      ["detailData", currentMovieId],
+      () => {
+        if (currentMovieId !== null) {
+          if (urlPathname === "/") {
+            return getMovieDetail(currentMovieId);
+          } else if (urlPathname === "/tv") {
+            return getTvDetail(currentMovieId);
+          }
+        }
+        return null;
+      }
+    );
+    return { data, isLoading, refetch };
+  };
+
+  const {
+    data: detail,
+    isLoading: detailLoading,
+    refetch: refetchDetail,
+  } = useConditionalDetailQuery(urlPathname, currentMovieId);
+
+  const useConditionalCreditsQuery = (
+    urlPathname: string,
+    currentMovieId: number
+  ) => {
+    const { data, isLoading, refetch } = useQuery(
+      ["creditsData", currentMovieId],
+      () => {
+        if (currentMovieId !== null) {
+          if (urlPathname === "/") {
+            return getMovieCredit(currentMovieId);
+          } else if (urlPathname === "/tv") {
+            return getTvCredit(currentMovieId);
+          }
+        }
+        return null;
+      }
     );
 
-  const { data: movieCredit, isLoading: creditLoading } =
-    useQuery<IMovieCredit>(["credit", currentMovieId], () =>
-      getMovieCredit(currentMovieId)
-    );
+    return { data, isLoading, refetch };
+  };
+
+  const {
+    data: credit,
+    isLoading: creditLoading,
+    refetch: refetchCredit,
+  } = useConditionalCreditsQuery(urlPathname, currentMovieId);
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) =>
@@ -156,13 +206,19 @@ const PopSlider: React.FC<PopSliderProps> = ({ movies }) => {
         <Info>
           <MovieTitle>
             {"<"}
-            {movies[currentIndex].title}
+            {movies[currentIndex].title
+              ? movies[currentIndex].title
+              : movies[currentIndex].name}
             {">"}
           </MovieTitle>
-          {movieDetail && (
+          {detail && credit && (
             <>
               <MovieDetailInfo>
-                <p>개봉일: {movies[currentIndex].release_date}</p>
+                <p>
+                  {movies[currentIndex].release_date
+                    ? "개봉일: " + movies[currentIndex].release_date
+                    : "방영일: " + movies[currentIndex].first_air_date}
+                </p>
                 <div>
                   평점:{" "}
                   {Math.round(movies[currentIndex].vote_average * 10) / 10}
@@ -170,34 +226,42 @@ const PopSlider: React.FC<PopSliderProps> = ({ movies }) => {
                 </div>
                 <p>
                   장르:{" "}
-                  {movieDetail.genres.map((genre) => genre.name).join(", ")}
+                  {detail.genres &&
+                    detail.genres.length &&
+                    detail.genres
+                      .map((genre: { name: string }) => genre.name)
+                      .join(", ")}
                 </p>
-                {movieDetail.production_companies.length > 0 && (
-                  <p>제작사: {movieDetail.production_companies[0].name}</p>
+                {detail.production_companies.length > 0 && (
+                  <p>제작사: {detail.production_companies[0].name}</p>
                 )}
-                {movieCredit && movieCredit.cast.length > 0 && (
+                {credit.cast.length > 0 && (
                   <>
                     <p>
-                      감독:{" "}
-                      {
-                        movieCredit?.crew.find(
-                          (member) => member.job === "Director"
-                        )?.name
-                      }
+                      제작:{" "}
+                      {credit.crew
+                        .slice(0, 3)
+                        .map(
+                          (member: { name: string; job: string }) =>
+                            `${member.name}(${member.job})`
+                        )
+                        .join(", ")}
                     </p>
                     <p>
                       출연:{" "}
-                      {movieCredit.cast
+                      {credit.cast
                         .slice(0, 3)
-                        .map((actor) => actor.name)
+                        .map((actor: { name: string }) => actor.name)
                         .join(", ")}
                     </p>
                   </>
                 )}
               </MovieDetailInfo>
-              <MovieDetailInfo>
+              <MovieDetailInfo className="overview">
                 줄거리: <br />
-                {movies[currentIndex].overview}
+                {movies[currentIndex].overview
+                  ? movies[currentIndex].overview
+                  : "(줄거리 소개가 없습니다.)"}
               </MovieDetailInfo>
             </>
           )}

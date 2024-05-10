@@ -207,7 +207,7 @@ const Slider: React.FC<SliderProps> = ({ movies, onBoxClicked }) => {
                     )}
                   >
                     <Info variants={infoVariants}>
-                      <h4>{movie.title}</h4>
+                      <h4>{movie.title || movie.name}</h4>
                     </Info>
                   </Box>
                 ))}

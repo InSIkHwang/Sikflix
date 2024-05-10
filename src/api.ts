@@ -6,10 +6,12 @@ export interface IMovie {
   backdrop_path: string;
   poster_path: string;
   title: string;
+  name: string;
   overview: string;
   original_language: string;
   release_date: string;
   vote_average: number;
+  first_air_date: string;
 }
 
 export interface IMovieDetail {
@@ -49,24 +51,50 @@ export interface IGetMoviesResult {
 
 export function getMovies() {
   return fetch(
-    `${BASE_PATH}/movie/now_playing?api_key=${API_KEY}&language=ko&page=1&region=kr`
+    `${BASE_PATH}movie/now_playing?api_key=${API_KEY}&language=ko&page=1&region=kr`
+  ).then((response) => response.json());
+}
+
+export function getTvs() {
+  return fetch(
+    `${BASE_PATH}tv/on_the_air?api_key=${API_KEY}&language=ko&page=1&region=kr`
   ).then((response) => response.json());
 }
 
 export function getPopularMovies() {
   return fetch(
-    `${BASE_PATH}/movie/popular?api_key=${API_KEY}&language=ko&page=1&region=kr`
+    `${BASE_PATH}movie/popular?api_key=${API_KEY}&language=ko&page=1&region=kr`
+  ).then((response) => response.json());
+}
+
+export function getPopularTvs() {
+  return fetch(
+    `${BASE_PATH}tv/popular?api_key=${API_KEY}&language=ko&page=1&region=kr`
   ).then((response) => response.json());
 }
 
 export function getTopMovies() {
   return fetch(
-    `${BASE_PATH}/movie/top_rated?api_key=${API_KEY}&language=ko&page=1&region=kr`
+    `${BASE_PATH}movie/top_rated?api_key=${API_KEY}&language=ko&page=1&region=kr`
+  ).then((response) => response.json());
+}
+
+export function getTopTvs() {
+  return fetch(
+    `${BASE_PATH}tv/top_rated?api_key=${API_KEY}&language=ko&page=1&region=kr`
   ).then((response) => response.json());
 }
 
 export function getMovieDetail(id: number) {
-  return fetch(`${BASE_PATH}/movie/${id}?api_key=${API_KEY}&language=ko&`).then(
+  return fetch(`${BASE_PATH}movie/${id}?api_key=${API_KEY}&language=ko&`).then(
+    (response) => {
+      return response.json();
+    }
+  );
+}
+
+export function getTvDetail(id: number) {
+  return fetch(`${BASE_PATH}tv/${id}?api_key=${API_KEY}&language=ko&`).then(
     (response) => {
       return response.json();
     }
@@ -75,7 +103,15 @@ export function getMovieDetail(id: number) {
 
 export function getMovieCredit(id: number) {
   return fetch(
-    `${BASE_PATH}/movie/${id}/credits?api_key=${API_KEY}&language=ko&`
+    `${BASE_PATH}movie/${id}/credits?api_key=${API_KEY}&language=ko&`
+  ).then((response) => {
+    return response.json();
+  });
+}
+
+export function getTvCredit(id: number) {
+  return fetch(
+    `${BASE_PATH}tv/${id}/credits?api_key=${API_KEY}&language=ko&`
   ).then((response) => {
     return response.json();
   });

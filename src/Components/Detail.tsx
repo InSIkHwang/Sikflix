@@ -12,6 +12,7 @@ interface Props {
 }
 
 const BigMovie = styled(motion.div)`
+  z-index: 99;
   position: fixed;
   min-width: 600px;
   width: 40vw;
@@ -42,11 +43,19 @@ const BigTitle = styled.h3`
 
 const BigOverview = styled.p`
   padding: 20px;
+  margin-top: 10px;
   height: 100%;
   position: relative;
   top: -50px;
   line-height: 28px;
   color: ${(props) => props.theme.white.lighter};
+
+  overflow: auto;
+  white-space: normal;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
 `;
 
 const BigHeader = styled(motion.div)`
@@ -160,7 +169,7 @@ const Detail: React.FC<Props> = ({ movie, movieDetail, movieCredit }) => {
           )})`,
         }}
       />
-      <BigTitle>{movie.title}</BigTitle>
+      <BigTitle>{movie.title || movie.name}</BigTitle>
       {movieDetail && movieCredit && (
         <>
           <BigHeader>
@@ -175,8 +184,11 @@ const Detail: React.FC<Props> = ({ movie, movieDetail, movieCredit }) => {
               {Math.round(movie.vote_average * 10) / 10}
             </motion.p>
             <motion.p variants={childVariants}>
-              개봉일: {movie.release_date}
+              {movie.release_date
+                ? "개봉일: " + movie.release_date
+                : "방영일: " + movie.first_air_date}
             </motion.p>
+            <br />
             {movieDetail?.genres.slice(0, 3).map((genre, index) => (
               <motion.span key={index} variants={childVariants}>
                 <BigGenres>{genre.name}</BigGenres>
@@ -184,13 +196,14 @@ const Detail: React.FC<Props> = ({ movie, movieDetail, movieCredit }) => {
             ))}
           </BigHeader>
           <Credit>
-            <span>감독: </span>
-            <p>
-              {
-                movieCredit?.crew.find((member) => member.job === "Director")
-                  ?.name
-              }
-            </p>
+            <span>
+              {movieCredit?.crew.find((member) => member.job === "Director")
+                ?.name
+                ? "감독: " +
+                  movieCredit?.crew.find((member) => member.job === "Director")
+                    ?.name
+                : ""}
+            </span>
           </Credit>
           <Credit>
             <span>출연: </span>
