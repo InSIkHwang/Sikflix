@@ -1,11 +1,11 @@
 {
   "files": {
-    "main.js": "/Sikflix/static/js/main.3fedeea5.js",
+    "main.js": "/Sikflix/static/js/main.9ebc8ef0.js",
     "static/media/logo.png": "/Sikflix/static/media/logo.6ff7e7401eadcca3c2eb.png",
     "index.html": "/Sikflix/index.html",
-    "main.3fedeea5.js.map": "/Sikflix/static/js/main.3fedeea5.js.map"
+    "main.9ebc8ef0.js.map": "/Sikflix/static/js/main.9ebc8ef0.js.map"
   },
   "entrypoints": [
-    "static/js/main.3fedeea5.js"
+    "static/js/main.9ebc8ef0.js"
   ]
 }
