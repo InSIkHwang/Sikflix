@@ -28,8 +28,8 @@
  └── [assets] - 로고 이미지  
  └── [Components] ― 리액트 컴포넌트 폴더  
  └── Detail.tsx - 상세 내용 모달  
-    └── Footer.tsx
-    └── Header.tsx
+    └── Footer.tsx  
+    └── Header.tsx  
     └── PopSlider.tsx - Popular 카테고리 슬라이드  
     └── Slider.tsx - 일반 슬라이드  
  └── [Routes]/_ ― 리액트 라우터 폴더  
