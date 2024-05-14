@@ -181,9 +181,9 @@ const underlineVariants = {
 const offset = 6;
 
 function Tv() {
-  const { movieId } = useParams();
+  const { tvId } = useParams();
   const [clickedMovieId, setClickedMovieId] = useState<number | null>(
-    movieId ? +movieId : null
+    tvId ? +tvId : null
   );
   const navigate = useNavigate();
   const { data, isLoading, refetch } = useQuery<IGetMoviesResult>(
@@ -310,17 +310,13 @@ function Tv() {
                   animate={{ opacity: 1 }}
                 ></Overlay>
                 {clickedMovie && movieDetail && movieCredit && (
-                  <Detail
-                    movie={clickedMovie}
-                    movieDetail={movieDetail}
-                    movieCredit={movieCredit}
-                  />
+                  <Detail movieDetail={movieDetail} movieCredit={movieCredit} />
                 )}
               </>
             ) : null}
           </AnimatePresence>
           {popularData && movieDetail && movieCredit && (
-            <PopSlider movies={popularData.results} />
+            <PopSlider data={popularData.results} />
           )}
         </>
       )}

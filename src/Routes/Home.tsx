@@ -185,6 +185,9 @@ function Home() {
   const [clickedMovieId, setClickedMovieId] = useState<number | null>(
     movieId ? +movieId : null
   );
+
+  const location = useLocation();
+  const urlPathname = location.pathname;
   const navigate = useNavigate();
   const { data, isLoading, refetch } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
@@ -218,6 +221,11 @@ function Home() {
   } = useQuery<IMovieCredit>(["credit", clickedMovieId], () =>
     getMovieCredit(clickedMovieId!)
   );
+  useEffect(() => {
+    refetch();
+    refetchPopular();
+    refetchTop();
+  }, [urlPathname]);
 
   useEffect(() => {
     refetchDetail();
@@ -245,9 +253,6 @@ function Home() {
 
   const bigMovieMatch = useMatch("/movies/:movieId");
 
-  const location = useLocation();
-  const urlPathname = location.pathname;
-
   const onOverlayClick = () => {
     navigate("/");
   };
@@ -260,7 +265,6 @@ function Home() {
       topData?.results.find(
         (movie) => movie.id === +bigMovieMatch.params.movieId!
       ));
-
   return (
     <Wrapper>
       {" "}
@@ -315,16 +319,14 @@ function Home() {
                   animate={{ opacity: 1 }}
                 ></Overlay>
                 {clickedMovie && movieDetail && movieCredit && (
-                  <Detail
-                    movie={clickedMovie}
-                    movieDetail={movieDetail}
-                    movieCredit={movieCredit}
-                  />
+                  <Detail movieDetail={movieDetail} movieCredit={movieCredit} />
                 )}
               </>
             ) : null}
           </AnimatePresence>
-          {popularData && <PopSlider movies={popularData.results} />}
+          {popularData && movieDetail && movieCredit && (
+            <PopSlider data={popularData.results} />
+          )}
         </>
       )}
     </Wrapper>

@@ -16,7 +16,15 @@ export interface IMovie {
 
 export interface IMovieDetail {
   id: number;
+  name: string;
   title: string;
+  overview: string;
+  backdrop_path: string;
+  original_language: string;
+  release_date: string;
+  vote_average: number;
+  first_air_date: string;
+  poster_path: string;
   genres: [
     {
       id: number;
@@ -47,6 +55,27 @@ export interface IGetMoviesResult {
   results: IMovie[];
   total_pages: number;
   total_results: number;
+}
+
+export interface ISearchResult {
+  id: number;
+  name?: string;
+  title?: string;
+  backdrop_path: string;
+  poster_path: string;
+  vote_average: number;
+  overview: string;
+  original_title: string;
+  release_date?: string; // 영화
+  first_air_date?: string; // 시리즈
+}
+
+export interface IGetSearch {
+  page: number;
+  results: ISearchResult[];
+  total_pages: number;
+  total_results: number;
+  dates: string;
 }
 
 export function getMovies() {
@@ -112,6 +141,22 @@ export function getMovieCredit(id: number) {
 export function getTvCredit(id: number) {
   return fetch(
     `${BASE_PATH}tv/${id}/credits?api_key=${API_KEY}&language=ko&`
+  ).then((response) => {
+    return response.json();
+  });
+}
+
+export function getSearchMovie(keyword: string) {
+  return fetch(
+    `${BASE_PATH}/search/movie?api_key=${API_KEY}&language=en-US&query=${keyword}&page=1`
+  ).then((response) => {
+    return response.json();
+  });
+}
+
+export function getSearchTv(keyword: string) {
+  return fetch(
+    `${BASE_PATH}/search/tv?api_key=${API_KEY}&language=en-US&query=${keyword}&page=1&include_adult=false`
   ).then((response) => {
     return response.json();
   });

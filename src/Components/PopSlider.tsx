@@ -13,7 +13,7 @@ import { makeImagePath } from "../utils";
 import { useQuery } from "react-query";
 import { motion } from "framer-motion";
 import { IoStar } from "react-icons/io5";
-import { useLocation, useMatch } from "react-router-dom";
+import { useLocation, useMatch, useParams } from "react-router-dom";
 
 const Wrapper = styled(motion.div)`
   width: 100%;
@@ -94,95 +94,90 @@ const ArrowButton = styled.button`
 `;
 
 interface PopSliderProps {
-  movies: IMovie[];
+  data: IMovie[];
 }
 
-const PopSlider: React.FC<PopSliderProps> = ({ movies }) => {
+const PopSlider: React.FC<PopSliderProps> = ({ data }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  // useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     setCurrentIndex((prevIndex) =>
-  //       prevIndex === movies.length - 1 ? 0 : prevIndex + 1
-  //     );
-  //   }, 3000);
-
-  //   return () => clearInterval(intervalId);
-  // }, [movies]);
-
-  const currentMovieId = movies[currentIndex]?.id;
-
   const location = useLocation();
-  let urlPathname = location.pathname;
+  const urlPathname = location.pathname;
+  const category =
+    urlPathname === "/" || urlPathname.startsWith("/movies/")
+      ? "MOVIES"
+      : "TV SERIES";
 
-  const useConditionalDetailQuery = (
-    urlPathname: string,
-    currentMovieId: number
-  ) => {
-    const { data, isLoading, refetch } = useQuery(
-      ["detailData", currentMovieId],
-      () => {
-        if (currentMovieId !== null) {
-          if (urlPathname === "/") {
-            return getMovieDetail(currentMovieId);
-          } else if (urlPathname === "/tv") {
-            return getTvDetail(currentMovieId);
-          }
-        }
-        return null;
-      }
-    );
-    return { data, isLoading, refetch };
-  };
+  const getNextIndex = (currentIndex: number) =>
+    currentIndex === data.length - 1 ? 0 : currentIndex + 1;
+  const getPrevIndex = (currentIndex: number) =>
+    currentIndex === 0 ? data.length - 1 : currentIndex - 1;
+
+  const currentMovie = data[currentIndex];
+  const currentMovieId = currentMovie?.id;
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentIndex((prevIndex) =>
+        prevIndex === data.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [data]);
 
   const {
     data: detail,
     isLoading: detailLoading,
     refetch: refetchDetail,
-  } = useConditionalDetailQuery(urlPathname, currentMovieId);
-
-  const useConditionalCreditsQuery = (
-    urlPathname: string,
-    currentMovieId: number
-  ) => {
-    const { data, isLoading, refetch } = useQuery(
-      ["creditsData", currentMovieId],
-      () => {
-        if (currentMovieId !== null) {
-          if (urlPathname === "/") {
-            return getMovieCredit(currentMovieId);
-          } else if (urlPathname === "/tv") {
-            return getTvCredit(currentMovieId);
-          }
-        }
-        return null;
-      }
-    );
-
-    return { data, isLoading, refetch };
-  };
+  } = useQuery(["detailData", currentMovieId], () => {
+    if (!currentMovieId) return null;
+    if (urlPathname === "/" || urlPathname.startsWith("/movies/")) {
+      return getMovieDetail(currentMovieId);
+    } else {
+      return getTvDetail(currentMovieId);
+    }
+  });
 
   const {
     data: credit,
     isLoading: creditLoading,
     refetch: refetchCredit,
-  } = useConditionalCreditsQuery(urlPathname, currentMovieId);
+  } = useQuery(["creditsData", currentMovieId], () => {
+    if (!currentMovieId) return null;
+    if (urlPathname === "/" || urlPathname.startsWith("/movies/")) {
+      return getMovieCredit(currentMovieId);
+    } else {
+      return getTvCredit(currentMovieId);
+    }
+  });
 
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === movies.length - 1 ? 0 : prevIndex + 1
-    );
-  };
+  useEffect(() => {
+    refetchDetail();
+    refetchCredit();
+  }, [data]);
 
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? movies.length - 1 : prevIndex - 1
-    );
-  };
+  const nextSlide = () => setCurrentIndex(getNextIndex(currentIndex));
+  const prevSlide = () => setCurrentIndex(getPrevIndex(currentIndex));
+
+  // 데이터가 로딩 중이거나 성공적으로 불러와지지 않은 경우 처리
+  if (detailLoading || creditLoading || (!detail && !credit)) {
+    return <div>Loading...</div>;
+  }
+
+  // 데이터를 성공적으로 가져오지 못한 경우 다시 데이터를 불러오도록 설정
+  if (
+    !detail ||
+    !credit ||
+    detail.success === false ||
+    credit.success === false
+  ) {
+    refetchDetail();
+    refetchCredit();
+    return null;
+  }
 
   return (
     <>
-      <SliderTitle>POPULAR MOVIES</SliderTitle>
+      <SliderTitle>POPULAR {category}</SliderTitle>
       <Wrapper
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -196,32 +191,26 @@ const PopSlider: React.FC<PopSliderProps> = ({ movies }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          bgPhoto={makeImagePath(
-            movies[currentIndex].poster_path,
-            "w780" || ""
-          )}
+          bgPhoto={makeImagePath(data[currentIndex].poster_path, "w780" || "")}
         >
           <Rank>{currentIndex + 1}</Rank>
         </Poster>
         <Info>
           <MovieTitle>
-            {"<"}
-            {movies[currentIndex].title
-              ? movies[currentIndex].title
-              : movies[currentIndex].name}
-            {">"}
+            {currentMovie.title
+              ? `<${currentMovie.title}>`
+              : `<${currentMovie.name}>`}
           </MovieTitle>
           {detail && credit && (
             <>
               <MovieDetailInfo>
                 <p>
-                  {movies[currentIndex].release_date
-                    ? "개봉일: " + movies[currentIndex].release_date
-                    : "방영일: " + movies[currentIndex].first_air_date}
+                  {currentMovie.release_date
+                    ? `개봉일: ${currentMovie.release_date}`
+                    : `방영일: ${currentMovie.first_air_date}`}
                 </p>
                 <div>
-                  평점:{" "}
-                  {Math.round(movies[currentIndex].vote_average * 10) / 10}
+                  평점: {Math.round(data[currentIndex].vote_average * 10) / 10}
                   <IoStar color="yellow" size={18} />
                 </div>
                 <p>
@@ -259,8 +248,8 @@ const PopSlider: React.FC<PopSliderProps> = ({ movies }) => {
               </MovieDetailInfo>
               <MovieDetailInfo className="overview">
                 줄거리: <br />
-                {movies[currentIndex].overview
-                  ? movies[currentIndex].overview
+                {data[currentIndex].overview
+                  ? data[currentIndex].overview
                   : "(줄거리 소개가 없습니다.)"}
               </MovieDetailInfo>
             </>

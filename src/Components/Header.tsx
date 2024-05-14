@@ -6,7 +6,7 @@ import {
   useScroll,
 } from "framer-motion";
 import logo from "../Assets/logo.png";
-import { Link, useMatch, useNavigate } from "react-router-dom";
+import { Link, useLocation, useMatch, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -20,6 +20,7 @@ const Nav = styled(motion.nav)`
   font-size: 14px;
   padding: 20px 60px;
   color: white;
+  z-index: 99;
 `;
 
 const Col = styled.div`
@@ -125,8 +126,16 @@ interface IForm {
 
 function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const location = useLocation();
+  const urlPathname = location.pathname;
+
   const homeMatch = useMatch("/");
   const tvMatch = useMatch("/tv");
+  const searchMatch = useMatch("/search");
+  const movieUrlMatch = urlPathname.startsWith("/movies/");
+  const tvUrlMatch = urlPathname.startsWith("/tvs/");
+  const searchUrlMatch = urlPathname.startsWith("/search/");
+
   const inputAnimation = useAnimation();
   const navAnimation = useAnimation();
   const toggleSearch = () => {
@@ -154,10 +163,6 @@ function Header() {
     navigate(`/search?keyword=${data.keyword}`);
   };
 
-  const reload = () => {
-    window.location.reload();
-  };
-
   return (
     <Nav variants={navVariants} animate={navAnimation} initial={"top"}>
       <Col>
@@ -166,12 +171,20 @@ function Header() {
           <Item>
             <Link to={"/"}>
               {" "}
-              Home {homeMatch && <Circle layoutId="circle" />}
+              Home{" "}
+              {(homeMatch || movieUrlMatch) && <Circle layoutId="circle" />}
             </Link>
           </Item>
           <Item>
             <Link to={"/tv"}>
-              Tv Shows {tvMatch && <Circle layoutId="circle" />}
+              Tv Shows {(tvMatch || tvUrlMatch) && <Circle layoutId="circle" />}
+            </Link>
+          </Item>
+          <Item>
+            <Link to={"/search"}>
+              {" "}
+              Search{" "}
+              {(searchMatch || searchUrlMatch) && <Circle layoutId="circle" />}
             </Link>
           </Item>
         </Items>

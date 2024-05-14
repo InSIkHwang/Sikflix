@@ -6,7 +6,6 @@ import { makeImagePath } from "../utils";
 import { IMovie, IMovieDetail, IMovieCredit } from "../api";
 
 interface Props {
-  movie: IMovie;
   movieDetail: IMovieDetail | null;
   movieCredit: IMovieCredit | null;
 }
@@ -29,7 +28,7 @@ const BigMovie = styled(motion.div)`
 const BigCover = styled.div`
   width: 100%;
   background-size: cover;
-  background-position: center top;
+  background-position: center center;
   height: 300px;
 `;
 
@@ -158,77 +157,76 @@ const headerAnimationOptions = {
   transition: headerTransition, // 애니메이션 트랜지션 설정
 };
 
-const Detail: React.FC<Props> = ({ movie, movieDetail, movieCredit }) => {
-  return (
+const Detail: React.FC<Props> = ({ movieDetail, movieCredit }) => {
+  return movieDetail && movieCredit ? (
     <BigMovie {...headerAnimationOptions}>
       <BigCover
         style={{
           backgroundImage: `linear-gradient(to top, #0f0f0f, transparent), url(${makeImagePath(
-            movie.backdrop_path,
+            movieDetail.backdrop_path
+              ? movieDetail.backdrop_path
+              : movieDetail.poster_path,
             "w780"
           )})`,
         }}
       />
-      <BigTitle>{movie.title || movie.name}</BigTitle>
-      {movieDetail && movieCredit && (
-        <>
-          <BigHeader>
-            <BigLanguage variants={childVariants}>
-              {movie.original_language.toUpperCase()}
-            </BigLanguage>
+      <BigTitle>{movieDetail.title || movieDetail.name}</BigTitle>
+      <>
+        <BigHeader>
+          <BigLanguage variants={childVariants}>
+            {movieDetail.original_language.toUpperCase()}
+          </BigLanguage>
 
-            <BigStar variants={childVariants} style={{ marginLeft: "10px" }}>
-              <IoStar size={20} />
-            </BigStar>
-            <motion.p variants={childVariants}>
-              {Math.round(movie.vote_average * 10) / 10}
-            </motion.p>
-            <motion.p variants={childVariants}>
-              {movie.release_date
-                ? "개봉일: " + movie.release_date
-                : "방영일: " + movie.first_air_date}
-            </motion.p>
-            <br />
-            {movieDetail?.genres.slice(0, 3).map((genre, index) => (
-              <motion.span key={index} variants={childVariants}>
-                <BigGenres>{genre.name}</BigGenres>
-              </motion.span>
-            ))}
-          </BigHeader>
-          <Credit>
-            <span>
-              {movieCredit?.crew.find((member) => member.job === "Director")
-                ?.name
-                ? "감독: " +
-                  movieCredit?.crew.find((member) => member.job === "Director")
-                    ?.name
-                : ""}
-            </span>
-          </Credit>
-          <Credit>
-            <span>출연: </span>
-            {movieCredit?.cast.slice(0, 3).map((cast, index) => (
-              <div key={index}>
-                <p>{cast.name},</p>
-              </div>
-            ))}
-          </Credit>
-          <ProfileWrapper>
-            {movieCredit?.cast.slice(0, 3).map((cast, index) => (
-              <CreditProfile
-                key={index}
-                bgPhoto={makeImagePath(
-                  movieCredit?.cast[index].profile_path + "",
-                  "w500" || null
-                )}
-              />
-            ))}
-          </ProfileWrapper>
-        </>
-      )}
-      <BigOverview>{movie.overview}</BigOverview>
+          <BigStar variants={childVariants} style={{ marginLeft: "10px" }}>
+            <IoStar size={20} />
+          </BigStar>
+          <motion.p variants={childVariants}>
+            {Math.round(movieDetail.vote_average * 10) / 10}
+          </motion.p>
+          <motion.p variants={childVariants}>
+            {movieDetail.release_date
+              ? "개봉일: " + movieDetail.release_date
+              : "방영일: " + movieDetail.first_air_date}
+          </motion.p>
+          <br />
+          {movieDetail?.genres.slice(0, 3).map((genre, index) => (
+            <motion.span key={index} variants={childVariants}>
+              <BigGenres>{genre.name}</BigGenres>
+            </motion.span>
+          ))}
+        </BigHeader>
+        <Credit>
+          <span>
+            {movieCredit?.crew.find((member) => member.job === "Director")?.name
+              ? "감독: " +
+                movieCredit?.crew.find((member) => member.job === "Director")
+                  ?.name
+              : ""}
+          </span>
+        </Credit>
+        <Credit>
+          <span>출연: </span>
+          {movieCredit?.cast.slice(0, 3).map((cast, index) => (
+            <div key={index}>
+              <p>{cast.name},</p>
+            </div>
+          ))}
+        </Credit>
+        <ProfileWrapper>
+          {movieCredit?.cast.slice(0, 3).map((cast, index) => (
+            <CreditProfile
+              key={index}
+              bgPhoto={makeImagePath(
+                movieCredit?.cast[index].profile_path + "",
+                "w500" || null
+              )}
+            />
+          ))}
+        </ProfileWrapper>
+      </>
+      <BigOverview>{movieDetail.overview}</BigOverview>
     </BigMovie>
-  );
+  ) : null;
 };
 
 export default Detail;
