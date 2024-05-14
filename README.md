@@ -1,5 +1,5 @@
 # Sikflix
-[Sikflix 바로가기 👉👉](https://insikhwang.github.io/Sikflix)
+ 👉👉 [Sikflix 바로가기](https://insikhwang.github.io/Sikflix)
 
 - Movie & Tv Shows
   - React-Query 를 사용하여 themoviedb API 패치
