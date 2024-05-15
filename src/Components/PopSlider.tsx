@@ -15,6 +15,11 @@ import { motion } from "framer-motion";
 import { IoStar } from "react-icons/io5";
 import { useLocation, useMatch, useParams } from "react-router-dom";
 
+const Container = styled(motion.div)`
+  width: 100%;
+  height: 650px;
+`;
+
 const Wrapper = styled(motion.div)`
   width: 100%;
   display: flex;
@@ -150,30 +155,8 @@ const PopSlider: React.FC<PopSliderProps> = ({ data }) => {
     }
   });
 
-  useEffect(() => {
-    refetchDetail();
-    refetchCredit();
-  }, [data]);
-
   const nextSlide = () => setCurrentIndex(getNextIndex(currentIndex));
   const prevSlide = () => setCurrentIndex(getPrevIndex(currentIndex));
-
-  // 데이터가 로딩 중이거나 성공적으로 불러와지지 않은 경우 처리
-  if (detailLoading || creditLoading || (!detail && !credit)) {
-    return <div>Loading...</div>;
-  }
-
-  // 데이터를 성공적으로 가져오지 못한 경우 다시 데이터를 불러오도록 설정
-  if (
-    !detail ||
-    !credit ||
-    detail.success === false ||
-    credit.success === false
-  ) {
-    refetchDetail();
-    refetchCredit();
-    return null;
-  }
 
   return (
     <>
@@ -185,16 +168,21 @@ const PopSlider: React.FC<PopSliderProps> = ({ data }) => {
         exit={{ opacity: 0 }}
       >
         <ArrowButton onClick={prevSlide}>{"<"}</ArrowButton>
-        <Poster
-          as={motion.div}
-          key={currentMovieId}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          bgPhoto={makeImagePath(data[currentIndex].poster_path, "w780" || "")}
-        >
-          <Rank>{currentIndex + 1}</Rank>
-        </Poster>
+        {data[currentIndex] && ( // 데이터가 존재할 때만 슬라이더를 렌더링
+          <Poster
+            as={motion.div}
+            key={currentMovieId}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            bgPhoto={makeImagePath(
+              data[currentIndex].poster_path,
+              "w780" || ""
+            )}
+          >
+            <Rank>{currentIndex + 1}</Rank>
+          </Poster>
+        )}
         <Info>
           <MovieTitle>
             {currentMovie.title
